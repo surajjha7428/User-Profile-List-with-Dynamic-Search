@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Template</title>
+    <style>
+        body {
+            align-items: center;
+            padding-top: 2%;
+        }
+
+        input {
+            width: 100%;
+            height: 30px;
+            margin: auto;
+            font-size: 16px;
+        }
+
+        .inputDiv {
+            border: 0px solid black;
+            width: 20%;
+            height: auto;
+            margin: auto;
+        }
+
+        .user-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            text-align: center;
+            column-gap: 5%;
+            row-gap: 3%;
+            margin-top: 5%;
+        }
+
+        .userCards {
+            border: 0px solid black;
+            width: 80%;
+            margin: auto;
+            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+            border-radius: 10px;
+            padding: 5%;
+        }
+
+        img {
+            width: 60%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+</body>
+<script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+<script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/babel">
+    // Your  code will go here
+    let root = document.querySelector("#root");
+    let { useState, useEffect } = React;
+
+    function UserProfile({ avatar, email, first_name, last_name }) {
+
+        return (
+            <>
+                <div className="userCards">
+                    <img src={avatar} />
+                    <div className="userDetails">
+                        <h2>{first_name} {last_name}</h2>
+                        <p>{email}</p>
+                    </div>
+                </div>
+            </>
+        );
+    };
+
+
+    function App() {
+        let [users, setUsers] = useState([]);
+        let [searchQuery, setSearchQuery] = useState("");
+
+        useEffect(() => {
+            fetchUsers();
+        }, [])
+
+        async function fetchUsers() {
+            try {
+                let res = await axios.get("https://reqres.in/api/users");
+                console.log(res.data.data);
+                setUsers(res.data.data);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        function handleSearch(e) {
+            setSearchQuery(e.target.value);
+        }
+
+        function filterUsers() {
+            return users.filter((user) => {
+                return user.first_name.toLowerCase().includes(searchQuery.toLowerCase());
+            });
+        }
+
+
+
+
+
+        return (
+            <>
+                <div className="inputDiv">
+                    <input
+                        value={searchQuery}
+                        placeholder="search by first name"
+                        onChange={handleSearch}
+                    />
+                </div>
+                <div className="user-container">
+                    {filterUsers().map((user) => (
+                        <UserProfile key={user.id} {...user} />
+                    ))}
+                </div>
+            </>
+        )
+    }
+    ReactDOM.createRoot(root).render(<App />);
+</script>
+
+</html>
